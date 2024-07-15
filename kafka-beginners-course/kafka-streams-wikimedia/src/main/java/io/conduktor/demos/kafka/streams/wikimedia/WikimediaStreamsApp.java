@@ -42,6 +42,7 @@ public class WikimediaStreamsApp {
 
         final Topology appTopology = builder.build();
         LOGGER.info("Topology: {}", appTopology.describe());
+        @SuppressWarnings("resource")
         KafkaStreams streams = new KafkaStreams(appTopology, properties);
         streams.start();
     }
