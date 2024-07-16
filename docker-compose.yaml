@@ -12,7 +12,7 @@ services:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SERVERS: zoo1:2888:3888
     volumes:
-      - ./data/zookeeper:/var/lib/zookeeper
+      - data-zookeeper:/var/lib/zookeeper
 
   kafka1:
     image: confluentinc/cp-kafka:7.3.2
@@ -29,16 +29,17 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 1
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_JMX_PORT: 9001
       KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
       KAFKA_OPTS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.16.1.jar=7071:/opt/prometheus/config.yml
     volumes:
-      - ./data/kafka1:/var/lib/kafka/data
+      - kafka1-data:/var/lib/kafka/data
       - ./jmx_exporter/jmx_prometheus_javaagent-0.16.1.jar:/opt/prometheus/jmx_prometheus_javaagent-0.16.1.jar
       - ./jmx_exporter/config.yml:/opt/prometheus/config.yml
     depends_on:
@@ -59,16 +60,17 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 2
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_JMX_PORT: 9002
       KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
       KAFKA_OPTS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.16.1.jar=7072:/opt/prometheus/config.yml
     volumes:
-      - ./data/kafka2:/var/lib/kafka/data
+      - kafka2-data:/var/lib/kafka/data
       - ./jmx_exporter/jmx_prometheus_javaagent-0.16.1.jar:/opt/prometheus/jmx_prometheus_javaagent-0.16.1.jar
       - ./jmx_exporter/config.yml:/opt/prometheus/config.yml
     depends_on:
@@ -90,16 +92,17 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 3
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_JMX_PORT: 9003
       KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
       KAFKA_OPTS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.16.1.jar=7073:/opt/prometheus/config.yml
     volumes:
-      - ./data/kafka3:/var/lib/kafka/data
+      - kafka3-data:/var/lib/kafka/data
       - ./jmx_exporter/jmx_prometheus_javaagent-0.16.1.jar:/opt/prometheus/jmx_prometheus_javaagent-0.16.1.jar
       - ./jmx_exporter/config.yml:/opt/prometheus/config.yml
     depends_on:
@@ -168,8 +171,8 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_PLUGIN_PATH: '/usr/share/java,/etc/kafka-connect/jars,/usr/share/confluent-hub-components'
     volumes:
-      - ./data/kafka-connect:/var/lib/kafka-connect/data
-      - ./connectors:/etc/kafka-connect/jars/
+      - data-kafka-connect:/var/lib/kafka-connect/data
+      - connectors:/etc/kafka-connect/jars/
     depends_on:
       - zoo1
       - kafka1
@@ -208,7 +211,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./data/prometheus:/prometheus
+      - data-prometheus:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     depends_on:
@@ -222,7 +225,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./data/grafana:/var/lib/grafana
+      - data-grafana:/var/lib/grafana
     depends_on:
       - prometheus
 
@@ -233,7 +236,7 @@ services:
       service: postgresql
       file: conduktor.yml
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
+      - data-postgresql:/var/lib/postgresql/data
             
   conduktor-console:
     hostname: conduktor-console
@@ -242,7 +245,7 @@ services:
       service: conduktor-console
       file: conduktor.yml
     volumes:
-      - ./data/conduktor:/var/lib/conduktor
+      - data-conduktor:/var/lib/conduktor
 
   jmx-exporter:
     image: sscaling/jmx-prometheus-exporter
@@ -254,7 +257,7 @@ services:
       JMX_PORT: "5556"  # JMX port on which exporter listens
       CONFIG_FILE: "/etc/jmx-exporter/config.yml"
     volumes:
-      - ./jmx_exporter/config.yml:/etc/jmx-exporter/config.yml
+      - jmx_exporter-config:/etc/jmx-exporter/config.yml
     depends_on:
       - kafka1
       - kafka2
@@ -262,5 +265,16 @@ services:
 
 volumes:
   pg_data: 
-  conduktor_data: 
+  conduktor_data:
   jmx_exporter:
+  kafka1-data:
+  kafka2-data:
+  kafka3-data:
+  data-conduktor:
+  data-postgresql:
+  data-grafana:
+  data-prometheus:
+  data-kafka-connect:
+  connectors:
+  jmx_exporter-config:
+  data-zookeeper:
