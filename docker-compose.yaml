@@ -14,6 +14,7 @@ services:
     volumes:
       - data-zookeeper:/var/lib/zookeeper
 
+
   kafka1:
     image: confluentinc/cp-kafka:7.3.2
     hostname: kafka1
