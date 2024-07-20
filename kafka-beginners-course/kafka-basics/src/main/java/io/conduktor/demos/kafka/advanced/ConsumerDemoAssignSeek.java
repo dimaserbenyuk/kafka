@@ -20,6 +20,7 @@ public class ConsumerDemoAssignSeek {
 
         Logger log = LoggerFactory.getLogger(ConsumerDemoAssignSeek.class.getName());
 
+        @SuppressWarnings("unused")
         String bootstrapServers = "127.0.0.1:9092";
         String topic = "demo_java";
 

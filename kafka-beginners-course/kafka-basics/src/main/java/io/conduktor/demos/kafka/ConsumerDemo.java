@@ -40,6 +40,7 @@ public class ConsumerDemo {
         properties.setProperty("auto.offset.reset", "earliest");
 
         // create a consumer
+        @SuppressWarnings("resource")
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
 
         // subscribe to a topic
